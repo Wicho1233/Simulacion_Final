@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyecto Simulacion</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 6px 0;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        canvas {
+            margin-top: 20px;
+            max-width: 100%;
+            max-height: 400px;
+        }
+
+        .section {
+            margin-top: 35px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: right;
+        }
+
+        th {
+            background: #eee;
+            text-align: center;
+        }
+
+        h3 {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Proyecto NSL-KDD</h1>
+    <p>Sube un archivo <strong>.arff</strong> y ejecuta los análisis</p>
+
+    <!-- ===================== -->
+    <!-- SUBIDA DE ARCHIVO -->
+    <!-- ===================== -->
+    <input type="file" id="fileInput" accept=".arff"><br><br>
+
+    <!-- ===================== -->
+    <!-- BOTONES -->
+    <!-- ===================== -->
+    <button id="trainBtn">Ejecutar Regresión Logística (Notebook 05)</button>
+    <button id="corrBtn">Mostrar Correlaciones (Notebook 06)</button>
+    <button id="splitBtn">Dividir Dataset (Notebook 07)</button>
+    <button id="prepBtn">Preprocesamiento y Escalado (Notebook 08)</button>
+    <button id="pipelineBtn">Pipeline Completo (Notebook 09)</button>
+    <button id="evalBtn">Evaluación de Resultados (Notebook 10)</button>
+
+    <div id="error" class="error"></div>
+
+    <!-- ===================== -->
+    <!-- NOTEBOOK 05 -->
+    <!-- ===================== -->
+    <div class="section">
+        <h2>Resultados – Regresión Logística</h2>
+        <div id="trainResult">Aún no ejecutado</div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- NOTEBOOK 06 -->
+    <!-- ===================== -->
+    <div class="section">
+        <h2>Matriz de Correlación</h2>
+        <canvas id="corrHeatmap"></canvas>
+
+        <h3>Tabla de Correlación</h3>
+        <table id="corrTable"></table>
+    </div>
+
+    <div class="section">
+        <h2>Scatter: same_srv_rate vs dst_host_srv_count (20 datos)</h2>
+        <canvas id="scatterChart"></canvas>
+
+        <h3>Datos del Scatter</h3>
+        <table id="scatterTable">
+            <thead>
+                <tr>
+                    <th>same_srv_rate</th>
+                    <th>dst_host_srv_count</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- ===================== -->
+    <!-- NOTEBOOK 07 -->
+    <!-- ===================== -->
+    <div class="section">
+        <h2>División del Dataset</h2>
+
+        <ul>
+            <li><strong>Train:</strong> <span id="trainSize">-</span></li>
+            <li><strong>Validation:</strong> <span id="valSize">-</span></li>
+            <li><strong>Test:</strong> <span id="testSize">-</span></li>
+        </ul>
+
+        <h3>Distribución protocol_type – Train</h3>
+        <canvas id="splitTrainChart"></canvas>
+
+        <h3>Distribución protocol_type – Validation</h3>
+        <canvas id="splitValChart"></canvas>
+
+        <h3>Distribución protocol_type – Test</h3>
+        <canvas id="splitTestChart"></canvas>
+
+        <h3>Descargar conjuntos</h3>
+        <button onclick="downloadFile('train')">Descargar Train (.arff)</button>
+        <button onclick="downloadFile('val')">Descargar Validation (.arff)</button>
+        <button onclick="downloadFile('test')">Descargar Test (.arff)</button>
+    </div>
+
+    <!-- ===================== -->
+    <!-- NOTEBOOK 08 -->
+    <!-- ===================== -->
+    <div class="section">
+        <h2>Preprocesamiento y Escalado (Notebook 08)</h2>
+
+        <p><strong>Filas escaladas:</strong> <span id="prepRows">-</span></p>
+
+        <h3>X_train_scaled.head(10)</h3>
+
+        <table id="prepTable">
+            <thead>
+                <tr>
+                    <th>src_bytes</th>
+                    <th>dst_bytes</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- ===================== -->
+    <!-- NOTEBOOK 09 -->
+    <!-- ===================== -->
+    <div class="section">
+        <h2>Pipeline Completo (Notebook 09)</h2>
+
+        <ul>
+            <li><strong>Total de filas:</strong> <span id="pipeRows">-</span></li>
+            <li><strong>Total de atributos finales:</strong> <span id="pipeFeatures">-</span></li>
+        </ul>
+
+        <h3>Dataset procesado – head()</h3>
+
+        <table id="pipelineTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- ===================== -->
+    <!-- NOTEBOOK 10 -->
+    <!-- ===================== -->
+    <div class="section">
+        <h2>Evaluación de Resultados (Notebook 10)</h2>
+
+        <h3>Métricas de Evaluación</h3>
+        <table id="metricsTable">
+            <thead>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Accuracy</td><td id="evalAccuracy">-</td></tr>
+                <tr><td>Precision</td><td id="evalPrecision">-</td></tr>
+                <tr><td>Recall</td><td id="evalRecall">-</td></tr>
+                <tr><td>F1-Score</td><td id="evalF1">-</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Matriz de Confusión</h3>
+        <canvas id="confusionChart"></canvas>
+
+        <h3>Valores de la Matriz</h3>
+        <table id="confusionTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Pred Normal</th>
+                    <th>Pred Ataque</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Real Normal</th>
+                    <td id="tnCell">-</td>
+                    <td id="fpCell">-</td>
+                </tr>
+                <tr>
+                    <th>Real Ataque</th>
+                    <td id="fnCell">-</td>
+                    <td id="tpCell">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+<!-- JS -->
+<script src="app.js"></script>
+</body>
+</html>

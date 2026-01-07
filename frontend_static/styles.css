@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+.container {
+    width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.error {
+    color: red;
+}
